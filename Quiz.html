@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Квиз: модельный бизнес</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--fg:#f2efec;--mute:#8d8a87;--line:#2a2827;--card:#121110;--ok:#8fc29f;--bad:#d58a86;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f4f1;--fg:#111;--mute:#6f6b67;--line:#d9d5d0;--card:#fff;--ok:#2f7a4b;--bad:#b3433e}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;line-height:1.5}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+main{max-width:560px;margin:0 auto;padding:20px 18px 40px}
+.bar{height:3px;background:var(--line);margin:8px 0 28px}
+.bar i{display:block;height:100%;width:0;background:var(--fg);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:13px}
+h1{font-size:30px;line-height:1.15;margin:40px 0 12px;font-weight:700}
+h2{font-size:21px;line-height:1.35;margin:0 0 22px;font-weight:500}
+p{color:var(--mute);margin:0 0 24px}
+button{font:inherit;color:inherit;cursor:pointer}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:15px}
+.opt:focus-visible,.go:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--card))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--card))}
+.opt:disabled{cursor:default}
+.note{margin:16px 0;padding:14px 16px;border-left:2px solid var(--mute);color:var(--mute);font-size:14px}
+.go{background:var(--fg);color:var(--bg);border:0;border-radius:10px;padding:14px 22px;font-weight:700;font-size:15px}
+.score{font-size:64px;font-weight:700;line-height:1;margin:32px 0 8px}
+.rev{border-top:1px solid var(--line);padding:14px 0;font-size:14px}
+.rev b{display:block;font-weight:500;margin-bottom:4px}
+.rev span{color:var(--ok)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.go.alt{background:transparent;color:var(--fg);border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var Q=[
+["Какой рост обычно нужен для подиума (женщины / мужчины)?","~175–180 см / ~183–190 см",["~165–170 см / ~175–180 см","~180–185 см / ~190–195 см","Рост не имеет значения"],"Runway: строгие рост и параметры."],
+["Чем занимается fit / showroom модель?","Примеряет образцы для дизайнеров и байеров",["Ходит на показах высокой моды","Снимается для обложек журналов","Снимается в крупных планах рук и ног"],"Нужны точные стандартные размеры."],
+["Для чего берут commercial моделей?","Реклама, каталоги, e-commerce, ТВ",["Только показы высокой моды","Только съёмки частей тела","Только оформление выставок"],"Приятный, располагающий вид и более свободные правила по размерам."],
+["Какая категория снимается для крупных планов рук, ног и волос?","Parts",["Fitness","Beauty","Editorial"],"Parts: руки, ступни, ноги, волосы."],
+["Для каких брендов нужна fitness модель?","Спортивная одежда и wellness бренды",["Haute couture","Свадебные салоны","Только парфюмерия"],"Атлетичное телосложение."],
+["За что бронируют influencer / lifestyle моделей?","За охват и личный бренд",["За точные параметры","За подиумную походку","За рост"],"Не за мерки, а за аудиторию."],
+["Как называются два слоя кастинга?","«Look» и форма лица",["Рост и вес","Портфолио и возраст","Поза и одежда"],"Casting works on two layers."],
+["Какое лицо подходит для editorial / high fashion?","Острые скулы, угловатая челюсть, необычные пропорции",["Круглое, мягкое, с улыбкой","Идеально симметричное, «как с рекламы»","Только округлые черты"],"Interesting beats pretty: интересное важнее красивого."],
+["Для чего нужно лицо типа Classic beauty?","Косметика и крупные планы",["Уличная мода","Спортивные кампании","Только подиум"],"Идеальный баланс и безупречная кожа."],
+["Какой look называют любимым на подиуме (runway favorite)?","Androgynous",["Youthful / baby face","Commercial","Classic beauty"],"Черты читаются как любой пол."],
+["Что относится к Distinctive look?","Щель между зубами, веснушки, витилиго, редкий цвет глаз",["Идеальная симметрия и ровная кожа","Круглые мягкие черты","Острая челюсть и скулы"],"Сейчас такие лица активно ищут для кампаний."],
+["Для каких съёмок/показов подходит форма лица Diamond?","Runway",["Bridal","Skincare","Mass-market ТВ"],"Высокие скулы, узкие лоб и подбородок."],
+["Какая форма лица подходит для editorial и menswear?","Square",["Round","Heart","Triangle"],"Square: сильная челюсть."],
+["Какое лицо у Cat / feline face и куда его берут?","Приподнятые миндалевидные глаза, острые скулы; подиум, бельё, парфюм",["Круглые щёки и большие глаза; youth бренды","Тёплые опущенные глаза; lifestyle","Длинный прямой нос; couture"],"Seductive, cool."],
+["Что такое Puppy face?","Тёплые слегка опущенные глаза, мягкое выражение; lifestyle, commercial, K-beauty",["Узкие хитрые глаза, высокие скулы","Крупные симметричные глаза, фарфоровая кожа","Острые черты, широко посаженные глаза"],"Мгновенно вызывает симпатию."],
+["В каком порядке идут Big Four в календаре?","Нью-Йорк, Лондон, Милан, Париж",["Лондон, Нью-Йорк, Париж, Милан","Париж, Милан, Лондон, Нью-Йорк","Милан, Париж, Нью-Йорк, Лондон"],"Париж закрывает сезон и самый престижный слот."],
+["Какой город чаще всего называют «пятым»?","Копенгаген",["Берлин","Барселона","Вена"],"Ещё претендуют Токио, Шанхай и Сеул."],
+["Когда проходят основные сезоны недель моды?","Февраль–март и сентябрь–октябрь",["Январь и июль","Май и ноябрь","Апрель и декабрь"],"Осень/зима и весна/лето, дважды в год."],
+["Какая поза для вечерних платьев / couture?","Вес на задней ноге, бедро в сторону, подбородок вверх, медленный поворот 3/4",["Прыжок и растяжка","Руки скрещены, ноги на ширине плеч","Сидя, ноги вытянуты"],"На подиуме: медленный шаг, остановка, пауза, поворот."],
+["Чем отличаются правила поз commercial и editorial?","Commercial: открытая поза, контакт глазами, улыбка. Editorial: ракурсы, напряжение, взгляд мимо камеры",["Commercial: взгляд мимо камеры. Editorial: улыбка","Разницы нет","Commercial: только профиль. Editorial: только анфас"],"Два главных правила для всех типов одежды."],
+["Для чего берут editorial моделей?","Журнальные съёмки и кампании; запоминающаяся, нестандартная внешность",["Примерка образцов для байеров","Каталоги и e-commerce","Мероприятия и хостесс"],""],
+["За что отвечает beauty модель?","Лицо, волосы, кожа; косметические кампании",["Руки и ноги для крупных планов","Атлетичное телосложение","Показ коллекций на подиуме"],""],
+["Что такое curve и petite модели?","Та же работа, но другие размерные диапазоны",["Только детские съёмки","Только модели для ТВ","Только показы высокой моды"],""],
+["Где работают promotional / event модели?","Выставки, запуски, хостесс",["Только подиум","Съёмки для обложек","Примерочные шоурумы"],""],
+["Кто относится к специальным бордам (mature / alternative)?","50+, дети и подростки, модели с татуировками или необычными чертами",["Только плюс-сайз","Только спортсмены","Только модели для рук и ног"],""],
+["Какие направления входят в fashion division агентства?","Runway и editorial",["Catalog и e-commerce","Fitness и parts","Promo и influencer"],"Остальное: commercial и специальные борды."],
+["Какой look востребован в commercial?","Симметричный, дружелюбный, лёгкая улыбка; продаёт продукты",["Острая челюсть и необычные пропорции","Идеальная кожа для крупных планов","Черты, читающиеся как любой пол"],""],
+["Для кого подходит youthful / baby face look?","Teen и young-adult бренды",["Heritage бренды и кутюр","Люксовый парфюм","Спортивные марки для профи"],"Круглое, мягкое лицо, большие глаза."],
+["Какая форма лица самая универсальная?","Oval",["Square","Diamond","Triangle"],"Работает с любого ракурса."],
+["Какая форма лица мягкая, юная, для commercial и beauty?","Round",["Oblong","Diamond","Square"],""],
+["Какая форма лица: широкий лоб, узкий подбородок?","Heart",["Oval","Triangle","Oblong"],"Подходит для beauty."],
+["Какая форма лица длинная и элегантная, для high fashion?","Oblong",["Round","Heart","Oval"],""],
+["Какая форма лица: челюсть шире лба, редкая, но эффектная?","Triangle",["Heart","Diamond","Square"],""],
+["Как выглядит baby face?","Круглые щёки, большие глаза, маленькие нос и подбородок; кажется моложе возраста",["Выраженные скулы, чёткая челюсть","Узкие хитрые глаза","Длинный прямой нос, высокий лоб"],"Youth бренды, beauty, commercial."],
+["Как выглядит strong face и куда его берут?","Выраженные скулы, чёткая челюсть, глубокие глаза; editorial, luxury, power кампании",["Круглые щёки и мягкие черты; skincare","Мелкие заострённые черты; avant-garde","Тёплые опущенные глаза; lifestyle"],""],
+["Какое лицо с крупными симметричными глазами, мелкими чертами и фарфоровой кожей?","Doll face",["Fox face","Strong face","Sporty face"],"Beauty и high fashion."],
+["Какое лицо с узкими глазами, высокими скулами и хитрым выражением?","Fox face",["Deer face","Doll face","Classic face"],"Edgy fashion, streetwear."],
+["Для чего подходит deer / doe face (широкие невинные глаза, мягкие черты)?","Bridal, romantic, skincare",["Streetwear","Power кампании","Подиум и бельё"],""],
+["Какое лицо сбалансированное, симметричное и хорошо стареет?","Classic face",["Elfin face","Sensual face","Fox face"],"Ювелирка, timeless luxury, bridal."],
+["Какое лицо с длинным прямым носом и высоким лбом?","Aristocratic face",["Puppy face","Baby face","Sporty face"],"Heritage бренды, couture."],
+["Какое лицо с мелкими заострёнными чертами и широко посаженными глазами?","Elfin / fairy face",["Doll face","Strong face","Girl-next-door"],"Avant-garde, editorial: потустороннее."],
+["Для чего подходит sensual face (полные губы, тяжёлые веки)?","Glamour, swimwear, fragrance",["Wellness и sportswear","Bridal","Mass-market ТВ"],""],
+["Какое лицо с чистыми линиями и здоровым сиянием, без драмы?","Sporty face",["Sensual face","Aristocratic face","Elfin face"],"Sportswear, wellness."],
+["Для чего нужен girl / boy-next-door тип?","Mass-market commercial и ТВ",["Couture","Avant-garde","Luxury power кампании"],"Располагающий, «нормальный» в лучшем смысле."],
+["Что такое unique face?","Одна фирменная черта (щель в зубах, веснушки, необычные глаза)",["Идеальная симметрия","Круглые щёки и большие глаза","Длинный нос и высокий лоб"],"Лицо, которое никто не забудет."],
+["С какой эссенцией стилистов сопоставляют baby face?","Ingenue",["Dramatic","Gamine","Ethereal"],""],
+["С какой эссенцией сопоставляют strong face?","Dramatic",["Ingenue","Natural","Romantic"],""],
+["Какой город открывает сезон недель моды?","Нью-Йорк",["Лондон","Милан","Париж"],"Commercial, sportswear, американские бренды."],
+["Чем известен Лондон среди недель моды?","Молодые дизайнеры, эксперименты, новые таланты",["Кутюр и самый престижный слот","Люксовые дома","Правила устойчивости"],""],
+["Чем известен Милан на неделях моды?","Люксовые дома и мастерство (Prada, Gucci, Armani)",["Молодые дизайнеры","Американский sportswear","Скандинавские бренды"],""],
+["Какой город закрывает сезон и считается самым престижным слотом?","Париж",["Милан","Лондон","Нью-Йорк"],"Кутюр."],
+["Чем известна Копенгагенская неделя моды?","Правила устойчивости и скандинавские бренды",["Кутюр","Американские бренды","Люксовые дома Италии"],""],
+["Какие города ещё претендуют на звание «пятого»?","Токио, Шанхай, Сеул",["Берлин, Мадрид, Лиссабон","Дубай, Москва, Стамбул","Сидней, Торонто, Мумбаи"],""],
+["Какая поза для коктейльных платьев?","Рука на бедре, колено согнуто, взгляд через плечо, смех, волосы в движении",["Ноги на ширине плеч, руки скрещены","Прыжок и растяжка","Медленный поворот на 3/4"],"Игривость."],
+["Какая поза для костюмов и business?","Ноги на ширине плеч, рука застёгивает пиджак, руки в карманах",["Прогиб спины, руки в волосах","Присед и руки на коленях","Лёгкая походка и смех"],"Power."],
+["Какие позы для casual / denim / streetwear?","Шаг на ходу, опора на стену, руки в карманах, взгляд в сторону",["Прогиб спины и профиль","Руки сложены, прямая осанка","Низкий ракурс и прыжок"],"Расслабленно и в движении."],
+["Какие позы для sportswear / athleisure?","Шаг, прыжок, растяжка, присед, руки на коленях, низкий ракурс камеры",["Медленный поворот 3/4","Руки в карманах, воротник поднят","Профиль для украшений"],"Action."],
+["Как позируют в верхней одежде (пальто)?","Силуэт прежде всего: поднятый воротник, пальто нараспашку, поворот, чтобы ткань качнулась",["Прогиб спины, руки над головой","Присед, руки на коленях","Руки сложены, минимум жестов"],""],
+["Какая поза для свадебных платьев (bridal)?","Держит юбку или букет, глаза вниз, вид 3/4 со спины на шлейф, фата в движении",["Прыжок и низкий ракурс","Руки в карманах","Руки в волосах и прогиб"],"Romantic."],
+["Как позируют с сумками?","Рука на ремне, сумка вперёд",["Рука на поле шляпы","Ноги скрещены, носок вперёд","Рука у шеи, профиль"],""],
+["Как позируют с обувью (shoes)?","Ноги скрещены, одна стопа вперёд носком, сидя ноги вытянуты",["Рука на ремне","Рука на поле шляпы","Профиль для серёг"],""],
+["Как позируют в национальной / традиционной одежде?","Достойно и неподвижно: прямая осанка, сложенные руки, медленные повороты, профиль для головного убора",["Прыжки и растяжка","Прогиб спины, руки над головой","Смех и волосы в движении"],"Минимум жестов."],
+["Как позируют в купальниках?","Руки подняты или в волосах, прогиб спины, профиль, шаг по воде, одна нога вперёд",["Руки в карманах, воротник вверх","Ноги на ширине плеч, руки скрещены","Руки сложены, прямая осанка"],"Длина линий и изгибы."]
+];
+var app=document.getElementById("app"),order,i,score,wrong;
+function sh(a){a=a.slice();for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1)),t=a[k];a[k]=a[j];a[j]=t}return a}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function start(list){order=list||sh(Q.map(function(_,k){return k})).slice(0,20);i=0;score=0;wrong=[];show()}
+function home(){app.innerHTML='<h1>Квиз: модельный бизнес</h1><p>Каждый раз 20 случайных вопросов из банка в 63 вопросов по всей презентации: категории моделей, looks, формы и типы лиц, недели моды, позы. Варианты ответов тоже перемешиваются.</p><button class="go" id="s">Начать</button>';document.getElementById("s").onclick=function(){start()}}
+function show(){
+ var q=Q[order[i]],opts=sh([q[1]].concat(q[2])),n=order.length;
+ app.innerHTML='<div class="meta"><span>Вопрос '+(i+1)+' из '+n+'</span><span>Верно: '+score+'</span></div><div class="bar"><i style="width:'+(i/n*100)+'%"></i></div><h2>'+esc(q[0])+'</h2><div id="o"></div><div id="f"></div>';
+ var box=document.getElementById("o");
+ opts.forEach(function(t){var b=document.createElement("button");b.className="opt";b.textContent=t;b.onclick=function(){pick(b,t,q,box)};box.appendChild(b)})
+}
+function pick(btn,t,q,box){
+ var good=t===q[1];
+ Array.prototype.forEach.call(box.children,function(b){b.disabled=true;if(b.textContent===q[1])b.classList.add("ok")});
+ if(good)score++;else{btn.classList.add("bad");wrong.push(order[i])}
+ var last=i===order.length-1;
+ document.getElementById("f").innerHTML='<div class="note">'+(good?"Верно. ":"Неверно. ")+esc(q[3])+'</div><button class="go" id="n">'+(last?"Результат":"Дальше")+'</button>';
+ var n=document.getElementById("n");n.focus();n.onclick=function(){i++;last?end():show()}
+}
+function end(){
+ var n=order.length,h='<div class="meta"><span>Готово</span></div><div class="bar"><i style="width:100%"></i></div><div class="score">'+score+'/'+n+'</div><p>'+(score===n?"Без ошибок. Можно идти на экзамен.":score>=n*0.8?"Сильный результат. Повтори ошибки ниже.":"Есть над чем поработать. Разбери ошибки и пройди ещё раз.")+'</p><div class="row"><button class="go" id="a">Заново</button>';
+ if(wrong.length)h+='<button class="go alt" id="w">Повторить ошибки ('+wrong.length+')</button>';
+ h+='</div>';
+ if(wrong.length){h+='<h2 style="margin-top:36px">Ошибки</h2>';wrong.forEach(function(k){h+='<div class="rev"><b>'+esc(Q[k][0])+'</b><span>'+esc(Q[k][1])+'</span></div>'})}
+ app.innerHTML=h;
+ document.getElementById("a").onclick=function(){start()};
+ var w=document.getElementById("w");if(w)w.onclick=function(){start(sh(wrong))};
+ window.scrollTo(0,0)
+}
+home();
+</script>
+</body>
+</html>
